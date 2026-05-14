@@ -3,12 +3,12 @@
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ## Project Overview
-This is a Finnish high school course planner ("Koululukkari") for LOPS 2021 curriculum. The tool helps students select courses to reach the required 150 points for graduation. It features a retro terminal/CUI interface with green-on-black color scheme and saves user selections to localStorage.
+This is a Finnish high school course planner ("Koululukkari") for LOPS 2021 curriculum. The tool helps students select courses to reach the required 150 points for graduation. It features a clean, modern interface with soft colors that complement the background image, using elegant typography (Playfair Display and Montserrat) and saves user selections to localStorage.
 
 ## Code Structure
 The project consists of a single HTML file (`koululukkari.html`) that contains:
 - HTML structure with embedded CSS and JavaScript
-- Course data defined in the `subjects` array (lines 198-218)
+- Course data defined in the `subjects` array
 - State management using localStorage (key: 'lops_retro_v1')
 - Core functions: `renderGrid()`, `updateExtra()`, `save()`, `updateStats()`, `resetData()`
 - Event handlers for course selection and extra points input
@@ -23,10 +23,12 @@ As this is a static HTML/CSS/JS project:
   - LocalStorage persistence works
   - Reset function clears all data
   - Responsive design works at different screen sizes
+  - UI interactions (hover effects, animations) function correctly
 - **Debugging**: Use browser developer tools to:
   - Inspect elements and styles
   - Debug JavaScript in console
   - Check localStorage state under Application tab
+  - Monitor network requests (though this app runs entirely client-side)
 
 ## Key Implementation Details
 1. **Course Data Structure**: Each subject has an array of courses with:
@@ -40,11 +42,12 @@ As this is a static HTML/CSS/JS project:
    - Extra points stored separately as `extra` property
    - State object structure: `{ extra: number, [subject-id]: boolean, ... }`
 
-3. **Styling Approach**:
-   - CSS variables for color scheme (retro terminal colors)
-   - Box model forced to border-box with zero border-radius
-   - Interactive states toggle between outline-only and solid-fill
-   - ABI courses have flickering animation effect
+3. **Design System**:
+   - Color palette: Soft, modern colors with blue primary (#4a6fa5) and accent colors for course types
+   - Typography: Playfair Display for headings, Montserrat for body text
+   - Layout: Card-based design with glassmorphism effects (blur + transparency)
+   - Interactions: Hover effects, click animations, and subtle transitions
+   - Responsiveness: Mobile-friendly layouts that adapt to different screen sizes
 
 4. **Core Logic**:
    - Point calculation sums selected course points + extra points
@@ -55,6 +58,7 @@ As this is a static HTML/CSS/JS project:
 ## Maintenance Notes
 - All code is contained in one file for simplicity
 - To modify course data, edit the `subjects` array
-- To change styling, modify CSS variables or rules
-- To add features, consider extracting JavaScript to separate file
-- Current implementation favors simplicity over scalability
+- To change styling, modify CSS variables or rules in the :root section
+- To add features, consider the existing function structure and patterns
+- Current implementation balances readability with functionality
+- The design uses CSS variables for easy theming and modernization
