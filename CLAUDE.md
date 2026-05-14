@@ -24,6 +24,7 @@ As this is a static HTML/CSS/JS project:
   - Reset function clears all data
   - Responsive design works at different screen sizes
   - UI interactions (hover effects, animations) function correctly
+  - Clickable squares display point values (not course IDs) and are sized according to point values (1pt=w1, 2pt=w2, 3pt=w3)
 - **Debugging**: Use browser developer tools to:
   - Inspect elements and styles
   - Debug JavaScript in console
@@ -33,7 +34,7 @@ As this is a static HTML/CSS/JS project:
 ## Key Implementation Details
 1. **Course Data Structure**: Each subject has an array of courses with:
    - `i`: course identifier
-   - `p`: point value
+   - `p`: point value (displayed in clickable squares and used for sizing)
    - `t`: type (req/opt/loc)
    - `a`: optional flag for ABI courses
 
@@ -48,12 +49,14 @@ As this is a static HTML/CSS/JS project:
    - Layout: Card-based design with glassmorphism effects (blur + transparency)
    - Interactions: Hover effects, click animations, and subtle transitions
    - Responsiveness: Mobile-friendly layouts that adapt to different screen sizes
+   - Sizing: Course boxes sized by point value (w1=34px for 1pt, w2=54px for 2pt, w3=74px for 3pt)
 
 4. **Core Logic**:
    - Point calculation sums selected course points + extra points
    - Remaining points calculated as max(0, 150 - total)
    - Render function rebuilds entire grid on each state change
    - Event delegation through individual course box onclick handlers
+   - Clickable squares display course point values (`course.p`) and use width classes `w${course.p}`
 
 ## Maintenance Notes
 - All code is contained in one file for simplicity
