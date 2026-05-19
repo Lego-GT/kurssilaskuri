@@ -857,6 +857,8 @@
             max-width: 1200px;
             margin: 0 auto;
             padding: 40px 20px;
+            position: relative;
+            z-index: 5;
         }
 
         /* Header Section */
@@ -2438,7 +2440,13 @@
 
         let state = { extra: 0, theme: 'floral' };
         try {
-            state = JSON.parse(localStorage.getItem('lops_retro_v1')) || { extra: 0, theme: 'floral' };
+            const stored = localStorage.getItem('lops_retro_v1');
+            if (stored) {
+                const parsed = JSON.parse(stored);
+                if (parsed && typeof parsed === 'object') {
+                    state = { ...state, ...parsed };
+                }
+            }
         } catch (e) {
             console.warn("LocalStorage blocked, running in temporary mode.");
         }
