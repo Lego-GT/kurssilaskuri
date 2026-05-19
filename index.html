@@ -1,0 +1,2737 @@
+<!DOCTYPE html>
+<html lang="fi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TO THE FUTURE - LUKIO v2.0</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;800;900&family=Outfit:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <style>
+        :root {
+            /* Royal and modern color palette: soft blue to purple and between */
+            --primary: #4f46e5;
+            /* Indigo */
+            --primary-light: #818cf8;
+            /* Light Indigo */
+            --primary-dark: #3730a3;
+            /* Dark Indigo */
+            --bg-glass: rgba(255, 255, 255, 0.45);
+            --border-glass: rgba(255, 255, 255, 0.4);
+
+            /* Soft royal gradients for course types */
+            --req: #2563eb;
+            /* Royal Blue */
+            --opt: #7c3aed;
+            /* Soft Purple */
+            --loc: #4f46e5;
+            /* Soft Indigo (between blue and purple) */
+            --ext: #06b6d4;
+            /* Soft Cyan/Teal */
+
+            /* Dark Text for royal contrast */
+            --text-primary: #1e1b4b;
+            /* Deep Indigo Dark */
+            --text-secondary: #4338ca;
+            /* Medium Indigo */
+            --text-muted: #6366f1;
+            /* Soft Indigo */
+
+            --border-radius: 16px;
+            --box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.06);
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: transparent;
+            /* Transparent to let the backdrop canvas be fully visible! */
+            min-height: 100vh;
+            font-family: 'Outfit', sans-serif;
+            color: var(--text-primary);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            /* Warm central sunlit glow fading into soft periwinkle-lavender (moved deep in the background as a fallback) */
+            background: radial-gradient(circle at center, rgba(255, 253, 245, 0.4) 0%, rgba(238, 233, 254, 0.4) 60%, rgba(224, 231, 255, 0.5) 100%);
+            z-index: -8;
+            pointer-events: none;
+        }
+
+        /* Swaying Flower & Sunset Window Backdrop Canvas */
+        .cozy-backdrop-canvas {
+            position: fixed;
+            top: -4%;
+            left: -4%;
+            width: 108%;
+            height: 108%;
+            z-index: -3;
+            pointer-events: none;
+            animation: bgSway 16s infinite ease-in-out;
+            overflow: hidden;
+            background: #faf8f5;
+            /* Clean, cozy, off-white watercolor base to remove the color blockage! */
+            isolation: isolate; /* Force isolated stacking context for mix-blend-mode to render correctly on mobile */
+        }
+
+        @keyframes bgSway {
+
+            0%,
+            100% {
+                transform: translate(0, 0) scale(1.02) rotate(0deg);
+            }
+
+            50% {
+                transform: translate(25px, 18px) scale(1.04) rotate(0.8deg);
+            }
+        }
+
+        /* Sunset Sky Behind the Illustrated Left Window (Localized soft red-orange glow) */
+        .sunset-sky {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            /* Localized soft orange glow ONLY around the left window. 100% transparent on the center/right! */
+            background: radial-gradient(circle at 14% 35%, rgba(255, 69, 0, 0.45) 0%, rgba(255, 120, 0, 0.2) 30%, transparent 60%);
+            z-index: 1; /* Positive stack inside isolated canvas to fix mobile WebKit engine rendering */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            filter: blur(4px);
+            /* Distant background blur */
+        }
+
+        /* Sun Circle (Soft blurred Yellow and Orange Ball sitting in the window - 20% smaller!) */
+        .sunset-sun {
+            position: absolute;
+            width: 110px;
+            height: 110px;
+            /* Shading from hot white center to yellow, then to sunset orange and red on the edges */
+            background: radial-gradient(circle at 35% 35%, #ffffff 0%, #ffea00 35%, #ff5100 80%, #d84315 100%);
+            border-radius: 50%;
+            box-shadow: 0 0 45px rgba(255, 234, 0, 0.95), 0 0 95px rgba(255, 81, 0, 0.7);
+            top: 35%;
+            /* Centered exactly at 14% 35% to align with the rays center! */
+            left: 14%;
+            transform: translate(-50%, -50%);
+            /* Anchor center! */
+            z-index: 2; /* Positive stack inside isolated canvas to fix mobile WebKit engine rendering */
+            filter: blur(8px);
+            /* Soft focus background blur to keep flowers as the main focus! */
+            animation: sunPulse 6s infinite ease-in-out;
+        }
+
+        @keyframes sunPulse {
+
+            0%,
+            100% {
+                transform: translate(-50%, -50%) scale(1);
+                box-shadow: 0 0 45px rgba(255, 234, 0, 0.95), 0 0 95px rgba(255, 81, 0, 0.7);
+            }
+
+            50% {
+                transform: translate(-50%, -50%) scale(1.03);
+                box-shadow: 0 0 60px rgba(255, 234, 0, 1), 0 0 120px rgba(255, 81, 0, 0.9);
+            }
+        }
+
+        /* Deep Orange Volumetric Sun Rays (Shining exactly from the illustrated left window) */
+        .sunset-rays {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            /* Gorgeous repeating conic gradient: sharp, clean, non-blurred deep orange shafts of light */
+            background: repeating-conic-gradient(from 15deg at 14% 35%,
+                    rgba(234, 88, 12, 0.7) 0deg,
+                    /* Deep sunset orange start */
+                    rgba(234, 88, 12, 0.7) 12deg,
+                    /* Thick solid ray */
+                    transparent 12.1deg,
+                    /* Instant sharp drop-off (not blurred!) */
+                    transparent 22deg,
+                    rgba(224, 48, 0, 0.6) 22.1deg,
+                    /* Deep red-orange start */
+                    rgba(224, 48, 0, 0.6) 32deg,
+                    /* Thick solid ray */
+                    transparent 32.1deg,
+                    /* Instant sharp drop-off (not blurred!) */
+                    transparent 46deg
+                    /* Gap */
+                );
+            /* Mask to make the rays longer, fading out softly as they stretch across the screen */
+            -webkit-mask-image: radial-gradient(circle at 14% 35%, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0.85) 45%, rgba(0, 0, 0, 0) 100%);
+            mask-image: radial-gradient(circle at 14% 35%, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0.85) 45%, rgba(0, 0, 0, 0) 100%);
+            z-index: 3; /* Positive stack inside isolated canvas to fix mobile WebKit engine rendering */
+            mix-blend-mode: screen;
+            /* Blends intensely to make rays pop */
+            opacity: 0.95;
+            pointer-events: none;
+            transform-origin: 14% 35%;
+            /* Rotate around the illustrated window center */
+            animation: raysBreatheRotate 160s infinite linear;
+        }
+
+        @keyframes raysBreatheRotate {
+            0% {
+                transform: rotate(0deg) scale(1);
+            }
+
+            50% {
+                transform: rotate(180deg) scale(1.05);
+            }
+
+            100% {
+                transform: rotate(360deg) scale(1);
+            }
+        }
+
+        /* Foreground Watercolor Flowers & Illustrated Left Window (Sharp and Full-Screen) */
+        .floral-foreground {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('cozy_floral_background.png') no-repeat center center;
+            background-size: cover;
+            z-index: 4; /* Positive stack inside isolated canvas to fix mobile WebKit engine rendering */
+            opacity: 0.88;
+            /* High opacity for rich watercolor textures */
+            mix-blend-mode: multiply;
+            /* MAGICAL BLENDING: Turns the canvas white background 100% transparent so the warm orange/yellow rays shine through perfectly! */
+            pointer-events: none;
+            /* Force hardware acceleration on mobile to prevent WebKit rendering bugs */
+            transform: translate3d(0, 0, 0);
+            -webkit-transform: translate3d(0, 0, 0);
+            will-change: transform, opacity;
+        }
+
+        /* Foreground Cozy City & Skyscrapers (Sharp and Full-Screen) */
+        .city-foreground {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('cozy_city_background.png') no-repeat center center;
+            background-size: cover;
+            z-index: 4; /* Positive stack inside isolated canvas to fix mobile WebKit engine rendering */
+            opacity: 0.95;
+            pointer-events: none;
+            /* Force hardware acceleration on mobile to prevent WebKit rendering bugs */
+            transform: translate3d(0, 0, 0);
+            -webkit-transform: translate3d(0, 0, 0);
+            will-change: transform, opacity;
+        }
+
+        /* Floating Neon Stars / Light Particles for City Background */
+        .floating-star {
+            position: fixed;
+            pointer-events: none;
+            z-index: -1;
+            filter: drop-shadow(0 0 8px rgba(251, 191, 36, 0.6));
+        }
+
+        .star-1 {
+            width: 12px;
+            height: 12px;
+            top: 15%;
+            left: 20%;
+            animation: twinkleSlow 4s infinite ease-in-out;
+        }
+
+        .star-2 {
+            width: 8px;
+            height: 8px;
+            top: 25%;
+            left: 45%;
+            animation: twinkleFast 2.5s infinite ease-in-out;
+            animation-delay: 0.5s;
+        }
+
+        .star-3 {
+            width: 14px;
+            height: 14px;
+            top: 12%;
+            left: 75%;
+            animation: twinkleSlow 5s infinite ease-in-out;
+            animation-delay: 1.5s;
+        }
+
+        .star-4 {
+            width: 10px;
+            height: 10px;
+            top: 30%;
+            left: 85%;
+            animation: twinkleMedium 3.5s infinite ease-in-out;
+            animation-delay: 2s;
+        }
+
+        .star-5 {
+            width: 15px;
+            height: 15px;
+            top: 5%;
+            left: 60%;
+            animation: twinkleSlow 6s infinite ease-in-out;
+            animation-delay: 1s;
+        }
+
+        .star-6 {
+            width: 9px;
+            height: 9px;
+            top: 22%;
+            left: 10%;
+            animation: twinkleFast 3s infinite ease-in-out;
+            animation-delay: 1.2s;
+        }
+
+        @keyframes twinkleSlow {
+            0%, 100% { transform: scale(0.8); opacity: 0.3; }
+            50% { transform: scale(1.2); opacity: 0.95; }
+        }
+
+        @keyframes twinkleMedium {
+            0%, 100% { transform: scale(0.9); opacity: 0.4; }
+            50% { transform: scale(1.15); opacity: 0.9; }
+        }
+
+        @keyframes twinkleFast {
+            0%, 100% { transform: scale(0.75); opacity: 0.25; }
+            50% { transform: scale(1.3); opacity: 1; }
+        }
+
+        /* Elegant Top Right Theme Toggle */
+        .top-right-toggle {
+            position: fixed;
+            top: 40px;
+            right: 40px;
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            border-radius: 12px;
+            padding: 12px 20px;
+            box-shadow: 0 10px 30px rgba(31, 38, 135, 0.05);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            z-index: 1000;
+            border-right: 3px solid var(--primary);
+            cursor: pointer;
+            transition: var(--transition);
+            font-family: 'Cinzel', serif;
+            font-weight: 700;
+            font-size: 0.8rem;
+            color: var(--text-primary);
+            letter-spacing: 1px;
+            user-select: none;
+        }
+
+        .top-right-toggle:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 35px rgba(31, 38, 135, 0.08);
+            background: white;
+        }
+
+        .top-right-toggle span.icon {
+            font-size: 1.2rem;
+        }
+
+        /* Theme switching control rules */
+        /* Floral active styles */
+        body.theme-floral .sunset-sky,
+        body.theme-floral .sunset-sun,
+        body.theme-floral .sunset-rays,
+        body.theme-floral .floral-foreground,
+        body.theme-floral .floating-bee,
+        body.theme-floral .floating-petal {
+            display: block;
+        }
+
+        body.theme-floral .city-foreground,
+        body.theme-floral .floating-star {
+            display: none !important;
+        }
+
+        /* City active styles */
+        body.theme-city .sunset-sky,
+        body.theme-city .sunset-sun,
+        body.theme-city .sunset-rays,
+        body.theme-city .floral-foreground,
+        body.theme-city .floating-bee,
+        body.theme-city .floating-petal {
+            display: none !important;
+        }
+
+        body.theme-city .city-foreground {
+            display: block;
+        }
+
+        body.theme-city .floating-star {
+            display: block;
+        }
+
+        /* Flying Bees Styles */
+        .floating-bee {
+            position: fixed;
+            z-index: -1;
+            pointer-events: none;
+            filter: drop-shadow(0 4px 8px rgba(120, 53, 15, 0.12));
+        }
+
+        .bee-wing-l {
+            animation: wingFlap 0.07s infinite linear;
+            transform-origin: 14px 9px;
+        }
+
+        .bee-wing-r {
+            animation: wingFlap 0.07s infinite linear;
+            transform-origin: 17px 9px;
+        }
+
+        @keyframes wingFlap {
+
+            0%,
+            100% {
+                transform: scaleY(1);
+            }
+
+            50% {
+                transform: scaleY(0.15) translateY(3px);
+            }
+        }
+
+        .bee-1 {
+            width: 28px;
+            height: 28px;
+            animation: beeFlight1 34s infinite linear;
+        }
+
+        .bee-2 {
+            width: 24px;
+            height: 24px;
+            animation: beeFlight2 28s infinite linear;
+            animation-delay: 6s;
+        }
+
+        @keyframes beeFlight1 {
+            0% {
+                transform: translate(-10vw, 35vh) scaleX(1);
+                opacity: 0;
+            }
+
+            3% {
+                opacity: 0.9;
+            }
+
+            28% {
+                transform: translate(28vw, 12vh) rotate(8deg) scaleX(1);
+            }
+
+            48% {
+                transform: translate(50vw, 28vh) rotate(-12deg) scaleX(1);
+            }
+
+            50% {
+                transform: translate(52vw, 29vh) rotate(-12deg) scaleX(-1);
+            }
+
+            72% {
+                transform: translate(25vw, 60vh) scaleX(-1);
+            }
+
+            74% {
+                transform: translate(23vw, 59vh) rotate(18deg) scaleX(1);
+            }
+
+            97% {
+                opacity: 0.9;
+            }
+
+            100% {
+                transform: translate(110vw, 22vh) scaleX(1);
+                opacity: 0;
+            }
+        }
+
+        @keyframes beeFlight2 {
+            0% {
+                transform: translate(110vw, 60vh) scaleX(-1);
+                opacity: 0;
+            }
+
+            3% {
+                opacity: 0.9;
+            }
+
+            32% {
+                transform: translate(72vw, 40vh) rotate(-6deg) scaleX(-1);
+            }
+
+            52% {
+                transform: translate(46vw, 65vh) rotate(12deg) scaleX(-1);
+            }
+
+            54% {
+                transform: translate(44vw, 64vh) rotate(12deg) scaleX(1);
+            }
+
+            78% {
+                transform: translate(84vw, 22vh) scaleX(1);
+            }
+
+            80% {
+                transform: translate(86vw, 23vh) rotate(-18deg) scaleX(-1);
+            }
+
+            97% {
+                opacity: 0.9;
+            }
+
+            100% {
+                transform: translate(-10vw, 35vh) scaleX(-1);
+                opacity: 0;
+            }
+        }
+
+        /* Gentle Wind Currents Styles */
+        .wind-stripe {
+            position: fixed;
+            pointer-events: none;
+            z-index: -1;
+            width: 320px;
+            height: 45px;
+            opacity: 0;
+            filter: blur(1px);
+        }
+
+        /* 5 Scattered Wind Variables */
+        .wind-1 {
+            top: 15%;
+            left: -350px;
+            animation: oceanWaveLeftToRight_A 17s infinite ease-in-out;
+            animation-delay: 0s;
+        }
+
+        .wind-2 {
+            top: 36%;
+            right: -350px;
+            animation: oceanWaveRightToLeft_B 22s infinite ease-in-out;
+            animation-delay: 3.5s;
+        }
+
+        .wind-3 {
+            top: 54%;
+            left: -350px;
+            animation: oceanWaveLeftToRight_C 26s infinite ease-in-out;
+            animation-delay: 8s;
+        }
+
+        .wind-4 {
+            top: 72%;
+            right: -350px;
+            animation: oceanWaveRightToLeft_D 20s infinite ease-in-out;
+            animation-delay: 2s;
+        }
+
+        .wind-5 {
+            top: 89%;
+            left: -350px;
+            animation: oceanWaveLeftToRight_E 29s infinite ease-in-out;
+            animation-delay: 13s;
+        }
+
+        /* 5 Scattered Ocean Wave Keyframes for Wind */
+        @keyframes oceanWaveLeftToRight_A {
+            0% {
+                transform: translateX(-15vw) translateY(-10px) scaleY(0.7) rotate(0deg);
+                opacity: 0;
+            }
+
+            15% {
+                opacity: 0.72;
+            }
+
+            30% {
+                transform: translateX(20vw) translateY(25px) scaleY(1) rotate(4deg);
+            }
+
+            55% {
+                transform: translateX(55vw) translateY(-20px) scaleY(0.8) rotate(-4deg);
+            }
+
+            75% {
+                transform: translateX(80vw) translateY(15px) scaleY(1.1) rotate(2deg);
+                opacity: 0.72;
+            }
+
+            100% {
+                transform: translateX(115vw) translateY(-10px) scaleY(0.9) rotate(0deg);
+                opacity: 0;
+            }
+        }
+
+        @keyframes oceanWaveRightToLeft_B {
+            0% {
+                transform: translateX(15vw) translateY(20px) scaleY(0.9) rotate(0deg);
+                opacity: 0;
+            }
+
+            15% {
+                opacity: 0.75;
+            }
+
+            35% {
+                transform: translateX(-20vw) translateY(-30px) scaleY(1.2) rotate(-5deg);
+            }
+
+            60% {
+                transform: translateX(-55vw) translateY(25px) scaleY(0.8) rotate(3deg);
+            }
+
+            80% {
+                transform: translateX(-80vw) translateY(-15px) scaleY(1) rotate(-2deg);
+                opacity: 0.75;
+            }
+
+            100% {
+                transform: translateX(-115vw) translateY(20px) scaleY(0.9) rotate(0deg);
+                opacity: 0;
+            }
+        }
+
+        @keyframes oceanWaveLeftToRight_C {
+            0% {
+                transform: translateX(-15vw) translateY(15px) scaleY(1) rotate(-3deg);
+                opacity: 0;
+            }
+
+            20% {
+                opacity: 0.65;
+            }
+
+            45% {
+                transform: translateX(30vw) translateY(-25px) scaleY(0.75) rotate(4deg);
+            }
+
+            70% {
+                transform: translateX(70vw) translateY(30px) scaleY(1.1) rotate(-3deg);
+                opacity: 0.65;
+            }
+
+            100% {
+                transform: translateX(115vw) translateY(0px) scaleY(0.9) rotate(0deg);
+                opacity: 0;
+            }
+        }
+
+        @keyframes oceanWaveRightToLeft_D {
+            0% {
+                transform: translateX(15vw) translateY(-25px) scaleY(0.8) rotate(2deg);
+                opacity: 0;
+            }
+
+            18% {
+                opacity: 0.8;
+            }
+
+            40% {
+                transform: translateX(-25vw) translateY(30px) scaleY(1.1) rotate(-4deg);
+            }
+
+            65% {
+                transform: translateX(-65vw) translateY(-20px) scaleY(0.7) rotate(3deg);
+            }
+
+            85% {
+                transform: translateX(-85vw) translateY(15px) scaleY(0.9) rotate(-1deg);
+                opacity: 0.8;
+            }
+
+            100% {
+                transform: translateX(-115vw) translateY(-15px) scaleY(1) rotate(0deg);
+                opacity: 0;
+            }
+        }
+
+        @keyframes oceanWaveLeftToRight_E {
+            0% {
+                transform: translateX(-15vw) translateY(-30px) scaleY(1.1) rotate(-4deg);
+                opacity: 0;
+            }
+
+            15% {
+                opacity: 0.78;
+            }
+
+            35% {
+                transform: translateX(25vw) translateY(20px) scaleY(0.85) rotate(5deg);
+            }
+
+            65% {
+                transform: translateX(65vw) translateY(-35px) scaleY(1.15) rotate(-5deg);
+            }
+
+            85% {
+                transform: translateX(85vw) translateY(10px) scaleY(0.9) rotate(2deg);
+                opacity: 0.78;
+            }
+
+            100% {
+                transform: translateX(115vw) translateY(-20px) scaleY(1) rotate(0deg);
+                opacity: 0;
+            }
+        }
+
+        /* Floating Petal & Leaf Animations */
+        .floating-petal {
+            position: fixed;
+            pointer-events: none;
+            z-index: -1;
+            opacity: 0.8;
+            filter: drop-shadow(0 4px 10px rgba(99, 102, 241, 0.08));
+        }
+
+        /* Create distinct gentle breeze movements for each petal */
+        .petal-1 {
+            width: 25px;
+            height: 25px;
+            top: -10%;
+            left: 15%;
+            animation: floatSlow 28s infinite linear;
+        }
+
+        .petal-2 {
+            width: 18px;
+            height: 18px;
+            top: -10%;
+            left: 45%;
+            animation: floatMedium 22s infinite linear;
+            animation-delay: 3s;
+        }
+
+        .petal-3 {
+            width: 30px;
+            height: 30px;
+            top: -10%;
+            left: 75%;
+            animation: floatSlow 32s infinite linear;
+            animation-delay: 7s;
+        }
+
+        .petal-4 {
+            width: 20px;
+            height: 20px;
+            top: -10%;
+            left: 30%;
+            animation: floatFast 18s infinite linear;
+            animation-delay: 1.5s;
+        }
+
+        .petal-5 {
+            width: 28px;
+            height: 28px;
+            top: -10%;
+            left: 60%;
+            animation: floatSlow 35s infinite linear;
+            animation-delay: 5s;
+        }
+
+        .petal-6 {
+            width: 15px;
+            height: 15px;
+            top: -10%;
+            left: 90%;
+            animation: floatMedium 25s infinite linear;
+            animation-delay: 10s;
+        }
+
+        /* Green Leaves */
+        .leaf-1 {
+            width: 24px;
+            height: 24px;
+            top: -10%;
+            left: 22%;
+            animation: floatSlow 30s infinite linear;
+            animation-delay: 4s;
+        }
+
+        .leaf-2 {
+            width: 20px;
+            height: 20px;
+            top: -10%;
+            left: 68%;
+            animation: floatMedium 24s infinite linear;
+            animation-delay: 9.5s;
+        }
+
+        @keyframes floatSlow {
+            0% {
+                transform: translateY(-5vh) translateX(0) rotate(0deg) scale(0.9);
+                opacity: 0;
+            }
+
+            10% {
+                opacity: 0.85;
+            }
+
+            90% {
+                opacity: 0.85;
+            }
+
+            100% {
+                transform: translateY(105vh) translateX(-150px) rotate(360deg) scale(1.1);
+                opacity: 0;
+            }
+        }
+
+        @keyframes floatMedium {
+            0% {
+                transform: translateY(-5vh) translateX(0) rotate(0deg) scale(0.8);
+                opacity: 0;
+            }
+
+            15% {
+                opacity: 0.75;
+            }
+
+            85% {
+                opacity: 0.75;
+            }
+
+            100% {
+                transform: translateY(105vh) translateX(120px) rotate(-270deg) scale(1);
+                opacity: 0;
+            }
+        }
+
+        @keyframes floatFast {
+            0% {
+                transform: translateY(-5vh) translateX(0) rotate(0deg) scale(0.85);
+                opacity: 0;
+            }
+
+            8% {
+                opacity: 0.8;
+            }
+
+            92% {
+                opacity: 0.8;
+            }
+
+            100% {
+                transform: translateY(105vh) translateX(-80px) rotate(180deg) scale(1);
+                opacity: 0;
+            }
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        /* Header Section */
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 10px 0;
+        }
+
+        .header h1 {
+            font-family: 'Cinzel', serif;
+            font-size: 3.2rem;
+            font-weight: 900;
+            letter-spacing: 2px;
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 30%, #7c3aed 70%, #6b21a8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 12px;
+            text-shadow: 0 2px 10px rgba(99, 102, 241, 0.1);
+        }
+
+        .header .subtitle {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--text-secondary);
+        }
+
+        .header .status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .header .status::before {
+            content: '';
+            width: 10px;
+            height: 10px;
+            background-color: #10b981;
+            border-radius: 50%;
+            box-shadow: 0 0 10px #10b981;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(0.85);
+                opacity: 0.7;
+            }
+
+            50% {
+                transform: scale(1.2);
+                opacity: 1;
+                box-shadow: 0 0 14px #10b981;
+            }
+
+            100% {
+                transform: scale(0.85);
+                opacity: 0.7;
+            }
+        }
+
+        .header .cursor {
+            display: inline-block;
+            width: 8px;
+            height: 18px;
+            background-color: var(--primary);
+            margin-left: 4px;
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0;
+            }
+        }
+
+        /* Stats Section */
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto 40px auto;
+            background: var(--bg-glass);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--border-radius);
+            padding: 24px;
+            box-shadow: var(--box-shadow);
+        }
+
+        .stat-item {
+            text-align: center;
+            flex: 1;
+        }
+
+        .stat-value {
+            font-family: 'Cinzel', serif;
+            font-size: 3rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #1e3a8a 0%, #7c3aed 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 6px;
+            display: block;
+        }
+
+        .stat-label {
+            font-family: 'Cinzel', serif;
+            font-size: 0.85rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+        }
+
+        /* Main Content */
+        .main-content {
+            width: 100%;
+        }
+
+        .grid-container {
+            background: var(--bg-glass);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            overflow: hidden;
+            padding: 10px 0;
+        }
+
+        .grid-header {
+            display: flex;
+            padding: 15px 25px;
+            border-bottom: 2px solid rgba(99, 102, 241, 0.1);
+            color: var(--text-primary);
+            font-family: 'Cinzel', serif;
+            font-weight: 800;
+            font-size: 1.05rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .row {
+            display: flex;
+            padding: 12px 25px;
+            border-bottom: 1px solid rgba(99, 102, 241, 0.05);
+            align-items: center;
+            transition: var(--transition);
+        }
+
+        .row:hover {
+            background: rgba(255, 255, 255, 0.25);
+        }
+
+        .subject-name {
+            min-width: 220px;
+            font-family: 'Cinzel', serif;
+            font-weight: 700;
+            font-size: 0.95rem;
+            color: var(--text-primary);
+            letter-spacing: 0.5px;
+        }
+
+        .course-list {
+            display: flex;
+            flex-wrap: nowrap;
+            gap: 4px;
+            overflow-x: auto;
+            padding: 5px;
+            width: 100%;
+        }
+
+        /* Sharp Squares with Curvy Edges Course Boxes */
+        .course-box {
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 700;
+            font-size: 0.85rem;
+            height: 34px;
+            border-radius: 5px;
+            /* sharp square with curvy edges */
+            transition: var(--transition);
+            user-select: none;
+            border: 2px solid transparent;
+            box-shadow: 0 2px 4px rgba(31, 38, 135, 0.04);
+            background: rgba(255, 255, 255, 0.4);
+            flex-shrink: 0;
+        }
+
+        .course-box.w1 {
+            width: 34px;
+        }
+
+        .course-box.w2 {
+            width: 54px;
+        }
+
+        .course-box.w3 {
+            width: 74px;
+        }
+
+        /* Color theme: Soft Blue to Purple */
+        .course-box.type-req {
+            border-color: rgba(37, 99, 235, 0.5);
+            /* Soft Blue */
+            color: #1d4ed8;
+        }
+
+        .course-box.type-opt {
+            border-color: rgba(124, 58, 237, 0.5);
+            /* Soft Purple */
+            color: #6d28d9;
+        }
+
+        .course-box.type-loc {
+            border-color: rgba(79, 70, 229, 0.5);
+            /* Soft Indigo */
+            color: #4338ca;
+        }
+
+        .course-box.active {
+            transform: scale(1.05);
+            font-weight: 800;
+            box-shadow: 0 4px 10px rgba(99, 102, 241, 0.2);
+        }
+
+        .course-box.active.type-req {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            color: white;
+            border-color: transparent;
+        }
+
+        .course-box.active.type-opt {
+            background: linear-gradient(135deg, #a855f7 0%, #7c3aed 100%);
+            color: white;
+            border-color: transparent;
+        }
+
+        .course-box.active.type-loc {
+            background: linear-gradient(135deg, #6366f1 0%, #4338ca 100%);
+            color: white;
+            border-color: transparent;
+        }
+
+        .course-box.is-abi {
+            border-style: dashed;
+            border-width: 2px;
+        }
+
+        .course-box.is-abi.active {
+            animation: abi-pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes abi-pulse {
+            0% {
+                transform: scale(1.05);
+                box-shadow: 0 4px 10px rgba(99, 102, 241, 0.2);
+            }
+
+            50% {
+                transform: scale(1.1);
+                box-shadow: 0 6px 15px rgba(99, 102, 241, 0.35);
+            }
+
+            100% {
+                transform: scale(1.05);
+                box-shadow: 0 4px 10px rgba(99, 102, 241, 0.2);
+            }
+        }
+
+        .course-box:hover:not(.active) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(99, 102, 241, 0.12);
+            background: rgba(255, 255, 255, 0.8);
+        }
+
+        /* Extra Points Section */
+        .extra-points {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 15px 25px;
+            background: rgba(255, 255, 255, 0.2);
+            border-top: 1px solid rgba(99, 102, 241, 0.1);
+            width: 100%;
+        }
+
+        .extra-label {
+            font-family: 'Cinzel', serif;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-right: 15px;
+            font-size: 1rem;
+            letter-spacing: 0.5px;
+        }
+
+        .manual-input {
+            width: 90px;
+            padding: 8px 12px;
+            border: 2px solid rgba(99, 102, 241, 0.3);
+            border-radius: 6px;
+            font-family: 'Outfit', sans-serif;
+            font-size: 1rem;
+            font-weight: 600;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.6);
+            color: var(--text-primary);
+            transition: var(--transition);
+        }
+
+        .manual-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: white;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+        }
+
+        /* Legend */
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+            margin: 30px auto 0 auto;
+            padding: 20px;
+            background: var(--bg-glass);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            max-width: 800px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .legend-dot {
+            width: 14px;
+            height: 14px;
+            border-radius: 4px;
+            /* matching sharp squares with curvy edges */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .legend-dot.req {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+        }
+
+        .legend-dot.opt {
+            background: linear-gradient(135deg, #a855f7 0%, #7c3aed 100%);
+        }
+
+        .legend-dot.loc {
+            background: linear-gradient(135deg, #6366f1 0%, #4338ca 100%);
+        }
+
+        .legend-dot.abi {
+            background: linear-gradient(135deg, #6366f1 0%, #4338ca 100%);
+            border: 2px dashed rgba(255, 255, 255, 0.8);
+        }
+
+        .legend-dot.ext {
+            background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
+        }
+
+        /* Footer */
+        .footer {
+            margin-top: 50px;
+            padding: 30px 0;
+            text-align: center;
+            width: 100%;
+        }
+
+        .footer-info {
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+            font-weight: 500;
+            line-height: 1.8;
+            letter-spacing: 0.5px;
+        }
+
+        .footer-info p {
+            margin: 6px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .footer-info p::before {
+            content: "◆";
+            color: var(--primary-light);
+            font-size: 0.7rem;
+        }
+
+        .btn-reset {
+            margin-top: 25px;
+            padding: 12px 35px;
+            background: rgba(239, 68, 68, 0.1);
+            color: #dc2626;
+            border: 2px solid rgba(239, 68, 68, 0.3);
+            font-family: 'Cinzel', serif;
+            font-weight: 700;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 10px rgba(239, 68, 68, 0.05);
+        }
+
+        .btn-reset:hover {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+            border-color: transparent;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(239, 68, 68, 0.25);
+        }
+
+        /* Elegant Top Left Counter */
+        .top-left-counter {
+            position: fixed;
+            top: 40px;
+            left: 40px;
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            border-radius: 12px;
+            padding: 15px 25px;
+            box-shadow: 0 10px 30px rgba(31, 38, 135, 0.05);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            z-index: 100;
+            border-left: 3px solid var(--opt);
+            transition: var(--transition);
+        }
+
+        .top-left-counter:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 35px rgba(31, 38, 135, 0.08);
+        }
+
+        .top-left-counter .val {
+            font-family: 'Cinzel', serif;
+            font-size: 2.2rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, #1e3a8a 0%, #7c3aed 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            line-height: 1.1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .top-left-counter .lbl {
+            font-family: 'Cinzel', serif;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 900px) {
+            .top-left-counter {
+                position: sticky;
+                top: 15px;
+                left: 0;
+                margin: 0 auto 30px auto;
+                width: 100%;
+                max-width: 250px;
+                box-shadow: var(--box-shadow);
+            }
+
+            .top-right-toggle {
+                position: fixed;
+                top: 15px;
+                right: 15px;
+                padding: 8px 12px;
+                font-size: 0.7rem;
+                z-index: 1000;
+            }
+
+            /* Display the search and category filters only on phone viewports */
+            .search-filter-section {
+                display: flex;
+            }
+
+            .row {
+                flex-direction: column;
+                align-items: flex-start;
+                padding: 12px 15px;
+            }
+
+            .grid-header {
+                flex-direction: column;
+                align-items: flex-start;
+                padding: 12px 15px;
+            }
+
+            .subject-name {
+                min-width: 100%;
+                margin-bottom: 8px;
+                border-bottom: 1px solid rgba(99, 102, 241, 0.1);
+                padding-bottom: 4px;
+            }
+
+            .course-list {
+                justify-content: flex-start;
+            }
+
+            .stats {
+                flex-wrap: wrap;
+                gap: 20px;
+            }
+
+            .stat-item {
+                min-width: 140px;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .header h1 {
+                font-size: 2.2rem;
+            }
+
+            .container {
+                padding: 15px;
+            }
+
+            .stats {
+                padding: 20px 10px;
+                margin-bottom: 25px;
+            }
+
+            .stat-value {
+                font-size: 2.2rem;
+            }
+        }
+
+        /* Royal Donation Modal Styles */
+        .donation-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(30, 27, 75, 0.4);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            z-index: 2000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        .donation-modal-overlay.open {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .donation-modal-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            box-shadow: 0 20px 50px rgba(31, 38, 135, 0.15);
+            border-radius: 20px;
+            width: 90%;
+            max-width: 500px;
+            padding: 30px;
+            transform: scale(0.9);
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            position: relative;
+            color: var(--text-primary);
+        }
+
+        .donation-modal-overlay.open .donation-modal-card {
+            transform: scale(1);
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(99, 102, 241, 0.1);
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1.1rem;
+            color: var(--text-primary);
+            transition: var(--transition);
+        }
+
+        .modal-close:hover {
+            background: #ef4444;
+            color: white;
+            transform: rotate(90deg);
+        }
+
+        .modal-title {
+            font-family: 'Cinzel', serif;
+            font-size: 1.6rem;
+            font-weight: 900;
+            letter-spacing: 1.5px;
+            background: linear-gradient(135deg, #1e3a8a 0%, #7c3aed 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+
+        /* Donation Amount presets */
+        .preset-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+
+        .preset-btn {
+            flex: 1;
+            padding: 10px;
+            border-radius: 6px;
+            border: 2px solid rgba(99, 102, 241, 0.15);
+            background: rgba(255, 255, 255, 0.5);
+            font-family: 'Outfit', sans-serif;
+            font-weight: 700;
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: var(--transition);
+            text-align: center;
+            font-size: 0.95rem;
+        }
+
+        .preset-btn:hover {
+            background: rgba(99, 102, 241, 0.08);
+            border-color: var(--primary);
+        }
+
+        .preset-btn.active {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: white;
+            border-color: transparent;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+        }
+
+        /* Payment Tabs styling */
+        .payment-tabs {
+            display: flex;
+            background: rgba(99, 102, 241, 0.05);
+            border-radius: 10px;
+            padding: 4px;
+            gap: 4px;
+            margin-bottom: 25px;
+        }
+
+        .pay-tab {
+            flex: 1;
+            padding: 10px;
+            border-radius: 8px;
+            border: none;
+            background: transparent;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 700;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .pay-tab.active {
+            background: white;
+            color: var(--text-primary);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        /* Payment Content views */
+        .pay-view {
+            display: none;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .pay-view.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(6px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .pay-field {
+            margin-bottom: 20px;
+        }
+
+        .pay-field label {
+            display: block;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 600;
+            font-size: 0.85rem;
+            margin-bottom: 6px;
+            color: var(--text-secondary);
+        }
+
+        .pay-input {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: 2px solid rgba(99, 102, 241, 0.15);
+            font-family: 'Outfit', sans-serif;
+            font-size: 1rem;
+            font-weight: 600;
+            background: white;
+            color: var(--text-primary);
+            transition: var(--transition);
+        }
+
+        .pay-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+        }
+
+        /* Payment specific branding buttons */
+        .btn-pay-submit {
+            width: 100%;
+            padding: 14px;
+            border-radius: 8px;
+            border: none;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 800;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        /* MobilePay brand colors */
+        .btn-pay-submit.mobilepay {
+            background: linear-gradient(135deg, #5a73f3 0%, #3e50c4 100%);
+            color: white;
+        }
+
+        .btn-pay-submit.mobilepay:hover {
+            box-shadow: 0 6px 20px rgba(90, 115, 243, 0.3);
+            transform: translateY(-2px);
+        }
+
+        /* PayPal brand colors */
+        .btn-pay-submit.paypal {
+            background: linear-gradient(135deg, #ffc439 0%, #e0a91f 100%);
+            color: #003087;
+        }
+
+        .btn-pay-submit.paypal:hover {
+            box-shadow: 0 6px 20px rgba(255, 196, 57, 0.3);
+            transform: translateY(-2px);
+        }
+
+        /* Apple Pay brand colors */
+        .btn-pay-submit.applepay {
+            background: #000000;
+            color: white;
+        }
+
+        .btn-pay-submit.applepay:hover {
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+            transform: translateY(-2px);
+        }
+
+        /* Success screen styling inside modal */
+        .success-screen {
+            text-align: center;
+            padding: 20px 10px;
+            animation: scaleSuccess 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes scaleSuccess {
+            from {
+                transform: scale(0.8);
+                opacity: 0;
+            }
+
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .success-icon {
+            font-size: 4rem;
+            color: #10b981;
+            margin-bottom: 15px;
+            filter: drop-shadow(0 0 10px rgba(16, 185, 129, 0.2));
+            animation: bounceIn 1s infinite alternate;
+        }
+
+        @keyframes bounceIn {
+            from {
+                transform: translateY(0);
+            }
+
+            to {
+                transform: translateY(-8px);
+            }
+        }
+
+        .success-title {
+            font-family: 'Cinzel', serif;
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: #047857;
+            margin-bottom: 10px;
+        }
+
+        .success-desc {
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        /* Gold crown badge style next to score counter */
+        .crown-badge {
+            color: #f59e0b;
+            font-size: 1.5rem;
+            margin-left: 8px;
+            filter: drop-shadow(0 0 8px rgba(245, 158, 11, 0.3));
+            animation: crownSparkle 2s ease-in-out infinite;
+            display: inline-block;
+        }
+
+        @keyframes crownSparkle {
+            0% {
+                transform: rotate(0) scale(1);
+            }
+
+            50% {
+                transform: rotate(5deg) scale(1.15);
+                filter: drop-shadow(0 0 15px rgba(245, 158, 11, 0.6));
+            }
+
+            100% {
+                transform: rotate(0) scale(1);
+            }
+        }
+
+        /* Loading spinner inside button */
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.8s infinite linear;
+            display: none;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Mobile-only Search and Filters */
+        .search-filter-section {
+            display: none; /* Hidden on desktop screens by default */
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto 20px auto;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .search-box {
+            position: relative;
+            width: 100%;
+            background: var(--bg-glass);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 5px 15px;
+            display: flex;
+            align-items: center;
+            height: 54px;
+            transition: var(--transition);
+        }
+
+        .search-box:focus-within {
+            border-color: var(--primary-light);
+            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.1);
+            background: rgba(255, 255, 255, 0.6);
+        }
+
+        .search-icon {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            margin-right: 12px;
+            user-select: none;
+        }
+
+        #subject-search {
+            width: 100%;
+            border: none;
+            background: transparent;
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.05rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            outline: none;
+        }
+
+        #subject-search::placeholder {
+            color: var(--text-muted);
+            opacity: 0.7;
+            font-weight: 500;
+        }
+
+        .clear-btn {
+            background: rgba(99, 102, 241, 0.1);
+            border: none;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1.1rem;
+            color: var(--text-primary);
+            transition: var(--transition);
+        }
+
+        .clear-btn:hover {
+            background: #ef4444;
+            color: white;
+        }
+
+        /* Category Tabs (Scrolls horizontally on mobile) */
+        .category-tabs {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding: 5px 0;
+            scrollbar-width: none; /* Hide scrollbar on Firefox */
+            -ms-overflow-style: none; /* Hide scrollbar on IE/Edge */
+        }
+
+        .category-tabs::-webkit-scrollbar {
+            display: none; /* Hide scrollbar on Chrome/Safari */
+        }
+
+        .tab-btn {
+            background: var(--bg-glass);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border-glass);
+            border-radius: 20px;
+            padding: 8px 18px;
+            font-family: 'Cinzel', serif;
+            font-weight: 700;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: var(--transition);
+            white-space: nowrap;
+            letter-spacing: 0.5px;
+            box-shadow: 0 4px 12px rgba(31, 38, 135, 0.03);
+        }
+
+        .tab-btn:hover {
+            background: rgba(255, 255, 255, 0.6);
+            border-color: var(--primary-light);
+            transform: translateY(-1px);
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--opt) 100%);
+            color: white;
+            border-color: transparent;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.2);
+        }
+    </style>
+</head>
+
+<body class="theme-floral">
+    <!-- Swaying Watercolor Flower & Sunset Window Backdrop Canvas -->
+    <div class="cozy-backdrop-canvas">
+        <!-- Sunset Sky Behind the Illustrated Left Window (Localized Soft Red/Orange Glow) -->
+        <div class="sunset-sky"></div>
+        <!-- Yellow and Orange Sun Ball inside the window -->
+        <div class="sunset-sun"></div>
+        <!-- Volumetric Sun Rays (Deep Orange & Yellow, Shining through the left window) -->
+        <div class="sunset-rays"></div>
+        <!-- Foreground Watercolor Flowers & Illustrated Left Window (Sharp and Full-Screen) -->
+        <div class="floral-foreground"></div>
+        <!-- Foreground Cozy City & Skyscrapers (Sharp and Full-Screen) -->
+        <div class="city-foreground"></div>
+    </div>
+
+    <!-- Gentle Scattered Wind Currents (5 Ocean-Wave Variables) -->
+    <!-- Variable 1: Classic single flowing current line -->
+    <svg class="wind-stripe wind-1" viewBox="0 0 300 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M0 20 C60 5, 120 35, 180 20 Q240 5 300 20" stroke="rgba(255, 255, 255, 0.85)" stroke-width="2.5"
+            stroke-linecap="round" />
+    </svg>
+    <!-- Variable 2: Dual parallel wavy currents -->
+    <svg class="wind-stripe wind-2" viewBox="0 0 300 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M0 15 C50 30, 100 0, 180 25 T300 15" stroke="rgba(255, 255, 255, 0.8)" stroke-width="2"
+            stroke-linecap="round" />
+        <path d="M15 25 C65 40, 115 10, 195 35 T300 25" stroke="rgba(255, 255, 255, 0.45)" stroke-width="1.2"
+            stroke-linecap="round" />
+    </svg>
+    <!-- Variable 3: Gusty scattered breeze ripples -->
+    <svg class="wind-stripe wind-3" viewBox="0 0 300 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M5 20 C45 10, 85 30, 110 20" stroke="rgba(255, 255, 255, 0.78)" stroke-width="2"
+            stroke-linecap="round" />
+        <path d="M140 15 C175 10, 205 25, 220 20" stroke="rgba(255, 255, 255, 0.65)" stroke-width="1.8"
+            stroke-linecap="round" />
+        <path d="M245 25 C265 20, 285 15, 295 20" stroke="rgba(255, 255, 255, 0.55)" stroke-width="1.5"
+            stroke-linecap="round" />
+    </svg>
+    <!-- Variable 4: Deep rolling oceanic swell crest -->
+    <svg class="wind-stripe wind-4" viewBox="0 0 300 45" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M0 25 Q45 -5, 90 25 T180 25 T270 25 Q285 35 300 25" stroke="rgba(255, 255, 255, 0.85)"
+            stroke-width="2.8" stroke-linecap="round" />
+    </svg>
+    <!-- Variable 5: Super thin elegant long whisper breeze -->
+    <svg class="wind-stripe wind-5" viewBox="0 0 300 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M0 20 Q75 35, 150 20 T300 20" stroke="rgba(255, 255, 255, 0.75)" stroke-width="1.6"
+            stroke-linecap="round" />
+    </svg>
+
+    <!-- Flapping Wing Bees -->
+    <svg class="floating-bee bee-1" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <ellipse cx="15" cy="15" rx="8" ry="6" fill="#fbbf24" stroke="#78350f" stroke-width="0.5"
+            transform="rotate(-15 15 15)" />
+        <path d="M12 10 L12 20 M15 9 L15 21 M18 10 L18 20" stroke="#78350f" stroke-width="1.5"
+            transform="rotate(-15 15 15)" />
+        <ellipse cx="14" cy="9" rx="3" ry="5" fill="#f8fafc" fill-opacity="0.85" stroke="#cbd5e1" stroke-width="0.5"
+            class="bee-wing-l" />
+        <ellipse cx="17" cy="9" rx="3" ry="5" fill="#f8fafc" fill-opacity="0.85" stroke="#cbd5e1" stroke-width="0.5"
+            class="bee-wing-r" />
+        <circle cx="20" cy="14" r="0.8" fill="#1e293b" />
+    </svg>
+    <svg class="floating-bee bee-2" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <ellipse cx="15" cy="15" rx="8" ry="6" fill="#fbbf24" stroke="#78350f" stroke-width="0.5"
+            transform="rotate(-15 15 15)" />
+        <path d="M12 10 L12 20 M15 9 L15 21 M18 10 L18 20" stroke="#78350f" stroke-width="1.5"
+            transform="rotate(-15 15 15)" />
+        <ellipse cx="14" cy="9" rx="3" ry="5" fill="#f8fafc" fill-opacity="0.85" stroke="#cbd5e1" stroke-width="0.5"
+            class="bee-wing-l" />
+        <ellipse cx="17" cy="9" rx="3" ry="5" fill="#f8fafc" fill-opacity="0.85" stroke="#cbd5e1" stroke-width="0.5"
+            class="bee-wing-r" />
+        <circle cx="20" cy="14" r="0.8" fill="#1e293b" />
+    </svg>
+
+    <!-- Floating Cozy Flower Petals -->
+    <svg class="floating-petal petal-1" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M20 5 C10 15, 5 25, 10 32 C15 38, 25 38, 30 32 C35 25, 30 15, 20 5 Z" fill="#fbcfe8" fill-opacity="0.7"
+            stroke="#f472b6" stroke-width="0.5" />
+    </svg>
+    <svg class="floating-petal petal-2" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M20 2 C12 12, 10 20, 14 28 C18 36, 22 36, 26 28 C30 20, 28 12, 20 2 Z" fill="#ddd6fe"
+            fill-opacity="0.7" stroke="#a78bfa" stroke-width="0.5" />
+    </svg>
+    <svg class="floating-petal petal-3" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M20 5 C10 15, 5 25, 10 32 C15 38, 25 38, 30 32 C35 25, 30 15, 20 5 Z" fill="#f9a8d4"
+            fill-opacity="0.65" stroke="#f472b6" stroke-width="0.5" />
+    </svg>
+    <svg class="floating-petal petal-4" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M20 2 C12 12, 10 20, 14 28 C18 36, 22 36, 26 28 C30 20, 28 12, 20 2 Z" fill="#c084fc"
+            fill-opacity="0.6" stroke="#a855f7" stroke-width="0.5" />
+    </svg>
+    <svg class="floating-petal petal-5" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M20 5 C10 15, 5 25, 10 32 C15 38, 25 38, 30 32 C35 25, 30 15, 20 5 Z" fill="#fed7aa"
+            fill-opacity="0.75" stroke="#fb923c" stroke-width="0.5" />
+    </svg>
+    <svg class="floating-petal petal-6" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M20 2 C12 12, 10 20, 14 28 C18 36, 22 36, 26 28 C30 20, 28 12, 20 2 Z" fill="#e9d5ff"
+            fill-opacity="0.7" stroke="#c084fc" stroke-width="0.5" />
+    </svg>
+
+    <!-- Cozy Floating Leaves -->
+    <svg class="floating-petal leaf-1" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M10 30 C15 20, 25 15, 32 10 C25 20, 20 28, 10 30 Z" fill="#86efac" fill-opacity="0.65" stroke="#22c55e"
+            stroke-width="0.5" />
+        <path d="M10 30 Q20 22 32 10" stroke="#22c55e" stroke-width="0.4" />
+    </svg>
+    <svg class="floating-petal leaf-2" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M10 30 C15 20, 25 15, 32 10 C25 20, 20 28, 10 30 Z" fill="#4ade80" fill-opacity="0.55" stroke="#16a34a"
+            stroke-width="0.5" />
+        <path d="M10 30 Q20 22 32 10" stroke="#16a34a" stroke-width="0.4" />
+    </svg>
+
+    <!-- Floating Twinkling City Stars / Light Particles -->
+    <svg class="floating-star star-1" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 2L15 9L22 10L17 15L18 22L12 18L6 22L7 15L2 10L9 9L12 2Z" fill="#fef08a" />
+    </svg>
+    <svg class="floating-star star-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 2L15 9L22 10L17 15L18 22L12 18L6 22L7 15L2 10L9 9L12 2Z" fill="#cbd5e1" />
+    </svg>
+    <svg class="floating-star star-3" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 2L15 9L22 10L17 15L18 22L12 18L6 22L7 15L2 10L9 9L12 2Z" fill="#fef08a" />
+    </svg>
+    <svg class="floating-star star-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 2L15 9L22 10L17 15L18 22L12 18L6 22L7 15L2 10L9 9L12 2Z" fill="#a5f3fc" />
+    </svg>
+    <svg class="floating-star star-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 2L15 9L22 10L17 15L18 22L12 18L6 22L7 15L2 10L9 9L12 2Z" fill="#fef08a" />
+    </svg>
+    <svg class="floating-star star-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 2L15 9L22 10L17 15L18 22L12 18L6 22L7 15L2 10L9 9L12 2Z" fill="#fbcfe8" />
+    </svg>
+    <div class="container" style="position: relative;">
+        <!-- Elegant and Timeless Credit Counter -->
+        <div class="top-left-counter">
+            <div class="val" id="total">0</div>
+            <div class="lbl">POINTS LOADED</div>
+        </div>
+
+        <!-- Elegant Top Right Theme Toggle -->
+        <div class="top-right-toggle" onclick="toggleTheme()">
+            <span class="icon" id="theme-btn-icon">🌆</span>
+            <span id="theme-btn-text">CITY DUSK</span>
+        </div>
+
+        <!-- Header Section -->
+        <div class="header">
+            <h1>TO THE FUTURE</h1>
+            <div class="subtitle">
+                <div class="status" style="margin-bottom: 5px;">
+                    SYSTEM STATUS: <span>ONLINE</span>
+                    <span class="cursor"></span>
+                </div>
+                <div
+                    style="font-style: italic; font-size: 0.95rem; opacity: 0.85; margin-top: 5px; max-width: 500px; margin-left: auto; margin-right: auto; line-height: 1.4; color: var(--text-secondary); text-transform: none; letter-spacing: 0.5px;">
+                    "The expert in anything was once a beginner." — Helen Hayes
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Section -->
+        <div class="stats" style="max-width: 400px; margin-top: 20px;">
+            <div class="stat-item">
+                <div class="stat-value" id="missing" style="color: var(--req)">150</div>
+                <div class="stat-label">REMAINING</div>
+            </div>
+        </div>
+
+        <!-- Search and Filter Section (Mobile-only) -->
+        <div class="search-filter-section">
+            <div class="search-box">
+                <span class="search-icon">🔍</span>
+                <input type="text" id="subject-search" placeholder="Etsi oppiainetta (esim. Matematiikka, Äidinkieli)..." oninput="filterSubjects()">
+                <button id="clear-search-btn" class="clear-btn" onclick="clearSearch()" style="display: none;">&times;</button>
+            </div>
+            
+            <!-- Quick Category Tabs (Swipes horizontally on mobile) -->
+            <div class="category-tabs">
+                <button class="tab-btn active" onclick="filterCategory('all', this)">KAIKKI</button>
+                <button class="tab-btn" onclick="filterCategory('languages', this)">KIELET</button>
+                <button class="tab-btn" onclick="filterCategory('math', this)">MATIKKA</button>
+                <button class="tab-btn" onclick="filterCategory('sciences', this)">REAALIT</button>
+                <button class="tab-btn" onclick="filterCategory('arts', this)">TAITO & TAIDE</button>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="grid-container">
+                <div class="grid-header">
+                    <div class="subject-name">AINEE</div>
+                    <div class="course-list">KURSSIT</div>
+                </div>
+                <div id="main-grid"></div>
+
+                <div class="extra-points">
+                    <div class="extra-label">[EXT_POINTS]</div>
+                    <input type="number" class="manual-input" value="0" oninput="updateExtra(this.value)">
+                </div>
+            </div>
+        </div>
+
+        <!-- Legend -->
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-dot req"></div>
+                <span>[REQUIRED]</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-dot opt"></div>
+                <span>[OPTIONAL_STATE]</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-dot loc"></div>
+                <span>[LOCAL_VAR]</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-dot abi"></div>
+                <span>[ABI_MODULE]</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-dot ext"></div>
+                <span>[EXT_DATA]</span>
+            </div>
+        </div>
+
+        <!-- Donation Section -->
+        <div style="margin-top: 40px; text-align: center; padding: 20px;">
+            <p
+                style="color: var(--text-muted); font-size: 0.95rem; font-family: 'Cinzel'; font-weight: 700; margin-bottom: 15px; letter-spacing: 1px;">
+                SUPPORT PROTOCOL AVAILABLE</p>
+            <button onclick="openDonationModal()" style="display: inline-flex; align-items: center; justify-content: center; gap: 8px; 
+                      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white;
+                      padding: 14px 30px; text-decoration: none; font-weight: 800; font-size: 1rem;
+                      font-family: 'Cinzel', serif; letter-spacing: 1.5px; border-radius: 8px; border: none;
+                      cursor: pointer; box-shadow: 0 4px 15px rgba(217, 119, 6, 0.3); transition: all 0.3s;">
+                COFFEE.EXE
+            </button>
+        </div>
+
+        <!-- Donation Modal Overlay -->
+        <div id="donationOverlay" class="donation-modal-overlay" onclick="closeDonationModalOnBg(event)">
+            <div class="donation-modal-card">
+                <button class="modal-close" onclick="closeDonationModal()">×</button>
+                <div class="modal-title">COFFEE.EXE PROTOCOL</div>
+
+                <!-- Donation Amount presets -->
+                <div
+                    style="font-family: 'Outfit'; font-weight: 600; font-size: 0.85rem; margin-bottom: 8px; color: var(--text-secondary);">
+                    SELECT DONATION AMOUNT:</div>
+                <div class="preset-row">
+                    <button class="preset-btn" onclick="selectAmount(2, this)">2 €</button>
+                    <button class="preset-btn active" onclick="selectAmount(5, this)">5 €</button>
+                    <button class="preset-btn" onclick="selectAmount(10, this)">10 €</button>
+                    <button class="preset-btn" onclick="selectAmount('custom', this)">CUSTOM</button>
+                </div>
+
+                <!-- Custom amount field -->
+                <div id="customAmountContainer" class="pay-field" style="display: none;">
+                    <label for="customAmountInput">ENTER CUSTOM AMOUNT (€):</label>
+                    <input type="number" id="customAmountInput" class="pay-input" value="15" min="1"
+                        oninput="updateCustomAmount(this.value)">
+                </div>
+
+                <!-- Payment Methods Tabs -->
+                <div class="payment-tabs">
+                    <button class="pay-tab active" onclick="switchPayTab('mobilepay', this)">
+                        📱 MobilePay
+                    </button>
+                    <button class="pay-tab" onclick="switchPayTab('paypal', this)">
+                        💳 PayPal
+                    </button>
+                    <button class="pay-tab" onclick="switchPayTab('applepay', this)">
+                         Apple Pay
+                    </button>
+                </div>
+
+                <!-- Modal Content screen container -->
+                <div id="modalMainContent">
+                    <!-- MobilePay View -->
+                    <div id="view-mobilepay" class="pay-view active">
+                        <div class="pay-field">
+                            <label for="mobileNumber">ENTER MOBILE NUMBER:</label>
+                            <input type="tel" id="mobileNumber" class="pay-input" placeholder="040 123 4567"
+                                value="040 ">
+                        </div>
+                        <button class="btn-pay-submit mobilepay" onclick="simulatePayment('MobilePay')">
+                            <span class="spinner" id="spin-mobilepay"></span>
+                            <span id="text-mobilepay">PAY WITH MOBILEPAY (5 €)</span>
+                        </button>
+                    </div>
+
+                    <!-- PayPal View -->
+                    <div id="view-paypal" class="pay-view">
+                        <div class="pay-field">
+                            <label for="paypalEmail">PAYPAL EMAIL ADDRESS:</label>
+                            <input type="email" id="paypalEmail" class="pay-input" placeholder="your.name@example.com">
+                        </div>
+                        <button class="btn-pay-submit paypal" onclick="simulatePayment('PayPal')">
+                            <span class="spinner" id="spin-paypal"></span>
+                            <span id="text-paypal">PAY WITH PAYPAL (5 €)</span>
+                        </button>
+                    </div>
+
+                    <!-- Apple Pay View -->
+                    <div id="view-applepay" class="pay-view">
+                        <div style="text-align: center; padding: 15px 0; margin-bottom: 20px;">
+                            <div style="font-size: 3rem; color: #000; margin-bottom: 8px;"> Pay</div>
+                            <div style="font-family: 'Outfit'; font-size: 0.9rem; color: var(--text-secondary);">CONFIRM
+                                VIA BIOMETRIC SCAN</div>
+                        </div>
+                        <button class="btn-pay-submit applepay" onclick="simulatePayment('Apple Pay')">
+                            <span class="spinner" id="spin-applepay"></span>
+                            <span id="text-applepay">PAY WITH APPLE PAY (5 €)</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Success Screen (Hidden initially) -->
+                <div id="modalSuccessContent" style="display: none;">
+                    <div class="success-screen">
+                        <div class="success-icon">🏆</div>
+                        <div class="success-title">PAYMENT VERIFIED</div>
+                        <div class="success-desc">
+                            Thank you! Your donation of <strong id="successAmount">5 €</strong> has been verified.
+                            You have unlocked the <strong style="color: #f59e0b;">LUKIO_OS VIP PATRON</strong> crown
+                            badge!
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reset Button -->
+        <div style="text-align: center; margin-top: 30px;">
+            <button class="btn-reset" onclick="resetData()">FORMAT C: (RESET ALL)</button>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-info">
+            <p>DATA_POLICY: ALL SELECTIONS ARE STORED IN LOCAL_STORAGE (BROWSER_CACHE)</p>
+            <p>NETWORK_STATUS: NO DATA IS TRANSMITTED TO EXTERNAL SERVERS</p>
+            <p>DISCLAIMER: UNOFFICIAL PLANNING TOOL. CONSULT COUNSELOR FOR VALIDATION</p>
+            <p style="margin-top: 20px; opacity: 0.6;">(C) 2024 LUKIO_OS v2.0.1</p>
+        </div>
+    </footer>
+
+    <script>
+        const subjects = [
+            {
+                n: "Äidinkieli (ÄI)", cat: "languages", c: [
+                    { i: "1", p: 2, t: 'req' }, { i: "2", p: 2, t: 'req' }, { i: "3", p: 2, t: 'req' }, { i: "4", p: 2, t: 'req' }, { i: "5", p: 2, t: 'req' }, { i: "6", p: 2, t: 'req' },
+                    { i: "7", p: 2, t: 'opt' }, { i: "8", p: 2, t: 'opt' }, { i: "9", p: 2, t: 'opt' },
+                    { i: "10", p: 1, t: 'opt' }, { i: "11", p: 1, t: 'opt' },
+                    { i: "12", p: 2, t: 'loc' }, { i: "13", p: 2, t: 'loc' }, { i: "15", p: 2, t: 'loc' }, { i: "17", p: 2, t: 'loc' }, { i: "19", p: 2, t: 'loc' }
+                ]
+            },
+            {
+                n: "S2 (Second Language)", cat: "languages", c: [
+                    { i: "1", p: 2, t: 'req' }, { i: "2", p: 2, t: 'req' }, { i: "3", p: 2, t: 'req' }, { i: "4", p: 2, t: 'req' }, { i: "5", p: 2, t: 'req' }, { i: "6", p: 2, t: 'req' },
+                    { i: "7", p: 2, t: 'opt' }, { i: "8", p: 2, t: 'opt' }, { i: "9", p: 2, t: 'opt' },
+                    { i: "10", p: 1, t: 'opt' }, { i: "11", p: 1, t: 'opt' }
+                ]
+            },
+            {
+                n: "Ruotsi (RUB1)", cat: "languages", c: [
+                    { i: "1", p: 2, t: 'req' }, { i: "2", p: 2, t: 'req' }, { i: "3", p: 2, t: 'req' }, { i: "4", p: 2, t: 'req' }, { i: "5", p: 2, t: 'req' },
+                    { i: "6", p: 2, t: 'opt' }, { i: "7", p: 2, t: 'opt' },
+                    { i: "8", p: 2, t: 'loc' }, { i: "9", p: 1, t: 'loc', a: 1 }
+                ]
+            },
+            {
+                n: "Vieras kieli A1", cat: "languages", c: [
+                    { i: "1", p: 2, t: 'req' }, { i: "2", p: 2, t: 'req' }, { i: "3", p: 2, t: 'req' }, { i: "4", p: 2, t: 'req' }, { i: "5", p: 2, t: 'req' }, { i: "6", p: 2, t: 'req' },
+                    { i: "7", p: 2, t: 'opt' }, { i: "8", p: 2, t: 'opt' },
+                    { i: "9", p: 2, t: 'loc' }
+                ]
+            },
+            {
+                n: "Vieras kieli A2", cat: "languages", c: [
+                    { i: "1", p: 2, t: 'req' }, { i: "2", p: 2, t: 'req' }, { i: "3", p: 2, t: 'req' }, { i: "4", p: 2, t: 'req' }, { i: "5", p: 2, t: 'req' }, { i: "6", p: 2, t: 'req' },
+                    { i: "7", p: 2, t: 'opt' }, { i: "8", p: 2, t: 'opt' },
+                    { i: "9", p: 2, t: 'loc' }
+                ]
+            },
+            {
+                n: "Vieras kieli B2", cat: "languages", c: [
+                    { i: "1", p: 2, t: 'opt' }, { i: "2", p: 2, t: 'opt' }, { i: "3", p: 2, t: 'opt' }, { i: "4", p: 2, t: 'opt' }, { i: "5", p: 2, t: 'opt' },
+                    { i: "6", p: 1, t: 'opt' }, { i: "7", p: 1, t: 'opt' }, { i: "8", p: 1, t: 'opt' },
+                    { i: "10", p: 2, t: 'loc', a: 1 }
+                ]
+            },
+            {
+                n: "Vieras kieli B3", cat: "languages", c: [
+                    { i: "1", p: 2, t: 'opt' }, { i: "2", p: 2, t: 'opt' },
+                    { i: "3", p: 1, t: 'opt' }, { i: "4", p: 1, t: 'opt' }, { i: "5", p: 1, t: 'opt' }, { i: "6", p: 1, t: 'opt' }, { i: "7", p: 1, t: 'opt' }, { i: "8", p: 1, t: 'opt' },
+                    { i: "10", p: 2, t: 'loc', a: 1 }
+                ]
+            },
+            {
+                n: "Matematiikka, pitkä (MAA)", cat: "math", c: [
+                    { i: "1", p: 2, t: 'req' }, { i: "2", p: 2, t: 'req' }, { i: "3", p: 2, t: 'req' }, { i: "4", p: 2, t: 'req' }, { i: "5", p: 2, t: 'req' }, { i: "6", p: 2, t: 'req' }, { i: "7", p: 2, t: 'req' }, { i: "8", p: 2, t: 'req' }, { i: "9", p: 2, t: 'req' },
+                    { i: "10", p: 2, t: 'opt' },
+                    { i: "14", p: 2, t: 'loc' }, { i: "17", p: 2, t: 'loc' }, { i: "18", p: 2, t: 'loc' }, { i: "20-23", p: 2, t: 'loc' }
+                ]
+            },
+            {
+                n: "Matematiikka, lyhyt (MAB)", cat: "math", c: [
+                    { i: "1", p: 2, t: 'req' }, { i: "2", p: 2, t: 'req' }, { i: "3", p: 2, t: 'req' }, { i: "4", p: 2, t: 'req' }, { i: "5", p: 2, t: 'req' },
+                    { i: "6", p: 2, t: 'opt' }, { i: "7", p: 2, t: 'opt' }, { i: "8", p: 2, t: 'opt' },
+                    { i: "9", p: 1, t: 'opt' },
+                    { i: "10", p: 2, t: 'loc' }, { i: "11", p: 2, t: 'loc' }, { i: "13", p: 2, t: 'loc' }, { i: "16", p: 2, t: 'loc' }, { i: "14", p: 2, t: 'loc' }, { i: "15", p: 2, t: 'loc' }, { i: "17", p: 2, t: 'loc' }, { i: "18", p: 2, t: 'loc' }, { i: "20-23", p: 2, t: 'loc' }
+                ]
+            },
+            {
+                n: "Biologia (BI)", cat: "sciences", c: [
+                    { i: "1", p: 2, t: 'req' }, { i: "2", p: 2, t: 'req' },
+                    { i: "3", p: 2, t: 'opt' }, { i: "4", p: 2, t: 'opt' },
+                    { i: "5", p: 1, t: 'opt' }, { i: "6", p: 1, t: 'opt' },
+                    { i: "8", p: 2, t: 'loc', a: 1 }, { i: "11", p: 2, t: 'loc', a: 1 }, { i: "12", p: 2, t: 'loc' }, { i: "14", p: 2, t: 'loc' }
+                ]
+            },
+            {
+                n: "Maantiede (GE)", cat: "sciences", c: [
+                    { i: "1", p: 2, t: 'req' },
+                    { i: "2", p: 2, t: 'opt' }, { i: "3", p: 2, t: 'opt' }, { i: "4", p: 2, t: 'opt' },
+                    { i: "5", p: 1, t: 'opt' }, { i: "6", p: 1, t: 'opt' },
+                    { i: "7", p: 2, t: 'loc' }, { i: "12", p: 2, t: 'loc', a: 1 }, { i: "13", p: 2, t: 'loc' }
+                ]
+            },
+            {
+                n: "Fysiikka (FY)", cat: "sciences", c: [
+                    { i: "1", p: 2, t: 'req' },
+                    { i: "2", p: 2, t: 'opt' },
+                    { i: "3", p: 1, t: 'opt' }, { i: "4", p: 1, t: 'opt' }, { i: "5", p: 1, t: 'opt' }, { i: "6", p: 1, t: 'opt' }, { i: "7", p: 1, t: 'opt' }, { i: "8", p: 1, t: 'opt' },
+                    { i: "11", p: 2, t: 'loc' }, { i: "12", p: 2, t: 'loc', a: 1 }, { i: "14", p: 2, t: 'loc' }
+                ]
+            },
+            {
+                n: "Kemia (KE)", cat: "sciences", c: [
+                    { i: "1", p: 2, t: 'req' },
+                    { i: "2", p: 2, t: 'opt' },
+                    { i: "3", p: 1, t: 'opt' }, { i: "4", p: 1, t: 'opt' }, { i: "5", p: 1, t: 'opt' }, { i: "6", p: 1, t: 'opt' },
+                    { i: "7", p: 2, t: 'loc' }, { i: "12", p: 2, t: 'loc', a: 1 }, { i: "13", p: 2, t: 'loc' }
+                ]
+            },
+            {
+                n: "Filosofia (FI)", cat: "sciences", c: [
+                    { i: "1", p: 2, t: 'req' }, { i: "2", p: 2, t: 'req' },
+                    { i: "3", p: 2, t: 'opt' }, { i: "4", p: 2, t: 'opt' }
+                ]
+            },
+            {
+                n: "Psykologia (PS)", cat: "sciences", c: [
+                    { i: "1", p: 2, t: 'req' },
+                    { i: "2", p: 2, t: 'opt' }, { i: "3", p: 2, t: 'opt' }, { i: "4", p: 2, t: 'opt' }, { i: "5", p: 2, t: 'opt' },
+                    { i: "6", p: 2, t: 'loc' }, { i: "7", p: 2, t: 'loc' }, { i: "10", p: 2, t: 'loc' }
+                ]
+            },
+            {
+                n: "Historia (HI)", cat: "sciences", c: [
+                    { i: "1", p: 2, t: 'req' }, { i: "2", p: 2, t: 'req' }, { i: "3", p: 2, t: 'req' },
+                    { i: "4", p: 2, t: 'opt' }, { i: "5", p: 2, t: 'opt' }, { i: "6", p: 2, t: 'opt' },
+                    { i: "7", p: 2, t: 'loc' }, { i: "9", p: 2, t: 'loc', a: 1 }, { i: "13", p: 2, t: 'loc', a: 1 }
+                ]
+            },
+            {
+                n: "Yhteiskuntaoppi (YH)", cat: "sciences", c: [
+                    { i: "1", p: 2, t: 'req' }, { i: "2", p: 2, t: 'req' }, { i: "3", p: 2, t: 'req' },
+                    { i: "4", p: 2, t: 'opt' },
+                    { i: "6", p: 2, t: 'loc' }, { i: "8", p: 2, t: 'loc', a: 1 }, { i: "9", p: 2, t: 'loc' }
+                ]
+            },
+            {
+                n: "Uskonto/ET", cat: "sciences", c: [
+                    { i: "1", p: 2, t: 'req' }, { i: "2", p: 2, t: 'req' },
+                    { i: "3", p: 2, t: 'opt' }, { i: "4", p: 2, t: 'opt' },
+                    { i: "5", p: 1, t: 'opt' }, { i: "6", p: 1, t: 'opt' },
+                    { i: "7", p: 2, t: 'loc', a: 1 }, { i: "8", p: 2, t: 'loc' }, { i: "9", p: 2, t: 'loc', a: 1 }
+                ]
+            },
+            {
+                n: "Terveystieto (TE)", cat: "sciences", c: [
+                    { i: "1", p: 2, t: 'req' },
+                    { i: "2", p: 2, t: 'opt' }, { i: "3", p: 2, t: 'opt' },
+                    { i: "4", p: 2, t: 'loc' }, { i: "5", p: 2, t: 'loc', a: 1 }
+                ]
+            },
+            {
+                n: "Liikunta (LI)", cat: "arts", c: [
+                    { i: "1", p: 2, t: 'req' }, { i: "2", p: 2, t: 'req' },
+                    { i: "3", p: 2, t: 'opt' }, { i: "4", p: 2, t: 'opt' }, { i: "5", p: 2, t: 'opt' },
+                    { i: "6", p: 2, t: 'loc' }, { i: "8", p: 2, t: 'loc' }, { i: "13", p: 2, t: 'loc' }, { i: "18-19", p: 2, t: 'loc' }
+                ]
+            },
+            {
+                n: "Musiikki (MU)", cat: "arts", c: [
+                    { i: "1", p: 1, t: 'req' }, { i: "2", p: 1, t: 'req' },
+                    { i: "3", p: 1, t: 'opt' }, { i: "4", p: 1, t: 'opt' },
+                    { i: "6", p: 2, t: 'loc' }, { i: "7-12", p: 2, t: 'loc' }, { i: "10", p: 2, t: 'loc' }, { i: "14", p: 2, t: 'loc' }, { i: "17", p: 2, t: 'loc' }
+                ]
+            },
+            {
+                n: "Kuvataide (KU)", cat: "arts", c: [
+                    { i: "1", p: 1, t: 'req' }, { i: "2", p: 1, t: 'req' },
+                    { i: "3", p: 1, t: 'opt' }, { i: "4", p: 1, t: 'opt' },
+                    { i: "5", p: 2, t: 'loc' }, { i: "8", p: 2, t: 'loc' }
+                ]
+            },
+            {
+                n: "Opinto-ohjaus (OP)", cat: "arts", c: [
+                    { i: "1", p: 2, t: 'loc' }, { i: "10", p: 2, t: 'loc' }
+                ]
+            },
+            {
+                n: "Tietotekniikka (TT)", cat: "math", c: [
+                    { i: "1", p: 2, t: 'loc' }
+                ]
+            },
+            {
+                n: "Lukiodiplomit", cat: "arts", c: [
+                    { i: "KULD2", p: 2, t: 'opt' }, { i: "LILD4", p: 2, t: 'opt' }, { i: "MULD6", p: 2, t: 'opt' }
+                ]
+            },
+            {
+                n: "Valmennus", cat: "arts", c: [
+                    { i: "1", p: 2, t: 'loc' }, { i: "2", p: 2, t: 'loc' }, { i: "3", p: 2, t: 'loc' }, { i: "4", p: 2, t: 'loc' }, { i: "5", p: 2, t: 'loc' }, { i: "6", p: 2, t: 'loc' }, { i: "7", p: 2, t: 'loc' }, { i: "8", p: 2, t: 'loc' }, { i: "9", p: 2, t: 'loc' }, { i: "10", p: 2, t: 'loc' }, { i: "11", p: 2, t: 'loc' }, { i: "12", p: 2, t: 'loc' }, { i: "13-20", p: 2, t: 'loc' }
+                ]
+            }
+        ];
+
+        let state = { extra: 0, theme: 'floral' };
+        try {
+            state = JSON.parse(localStorage.getItem('lops_retro_v1')) || { extra: 0, theme: 'floral' };
+        } catch (e) {
+            console.warn("LocalStorage blocked, running in temporary mode.");
+        }
+
+        let activeCategory = 'all';
+        let searchQuery = '';
+
+        function filterSubjects() {
+            const searchInput = document.getElementById('subject-search');
+            searchQuery = searchInput ? searchInput.value.toLowerCase().trim() : '';
+            const clearBtn = document.getElementById('clear-search-btn');
+            if (clearBtn) {
+                clearBtn.style.display = searchQuery ? 'flex' : 'none';
+            }
+            renderGrid();
+        }
+
+        function clearSearch() {
+            const searchInput = document.getElementById('subject-search');
+            if (searchInput) {
+                searchInput.value = '';
+            }
+            filterSubjects();
+        }
+
+        function filterCategory(cat, btn) {
+            activeCategory = cat;
+            
+            // Toggle active styles on buttons
+            const tabButtons = document.querySelectorAll('.tab-btn');
+            tabButtons.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            
+            renderGrid();
+        }
+
+        function renderGrid() {
+            const grid = document.getElementById('main-grid');
+            grid.innerHTML = '';
+            
+            let matchCount = 0;
+
+            subjects.forEach(sub => {
+                // Category Filter (only applicable if screen is mobile viewport size or filters exist)
+                if (activeCategory !== 'all' && sub.cat !== activeCategory) {
+                    return;
+                }
+
+                // Search query filter
+                if (searchQuery) {
+                    const matchesName = sub.n.toLowerCase().includes(searchQuery);
+                    if (!matchesName) {
+                        return;
+                    }
+                }
+
+                matchCount++;
+
+                const row = document.createElement('div');
+                row.className = 'row';
+                row.innerHTML = `<div class="subject-name">${sub.n}</div>`;
+
+                const list = document.createElement('div');
+                list.className = 'course-list';
+
+                sub.c.forEach(course => {
+                    const id = `${sub.n}-${course.i}`;
+                    const box = document.createElement('div');
+                    const abiClass = course.a ? 'is-abi' : '';
+                    box.className = `course-box w${course.p} type-${course.t} ${abiClass} ${state[id] ? 'active' : ''}`;
+                    box.innerHTML = `<span>${course.i}</span>`;
+                    box.onclick = () => {
+                        state[id] = !state[id];
+                        save();
+                        renderGrid();
+                    };
+                    list.appendChild(box);
+                });
+
+                row.appendChild(list);
+                grid.appendChild(row);
+            });
+
+            // No results handling
+            if (matchCount === 0) {
+                const emptyRow = document.createElement('div');
+                emptyRow.className = 'row no-results';
+                emptyRow.style.justifyContent = 'center';
+                emptyRow.style.padding = '30px';
+                emptyRow.style.color = 'var(--text-muted)';
+                emptyRow.style.fontWeight = '600';
+                emptyRow.style.fontFamily = "'Outfit', sans-serif";
+                emptyRow.innerHTML = 'Ei hakutuloksia. Kokeile toista hakusanaa! 🔍';
+                grid.appendChild(emptyRow);
+            }
+
+            updateStats();
+        }
+
+        function updateExtra(v) {
+            state.extra = parseFloat(v) || 0;
+            save();
+            updateStats();
+        }
+
+        function save() {
+            try {
+                localStorage.setItem('lops_retro_v1', JSON.stringify(state));
+            } catch (e) {
+                console.warn("Saving to LocalStorage failed.");
+            }
+        }
+
+        function updateStats() {
+            let total = state.extra || 0;
+            subjects.forEach(s => s.c.forEach(c => {
+                if (state[`${s.n}-${c.i}`]) total += c.p;
+            }));
+
+            const crownHtml = state.vip ? `<span class="crown-badge" title="LUKIO_OS VIP PATRON">👑</span>` : '';
+            document.getElementById('total').innerHTML = total + crownHtml;
+            document.getElementById('missing').textContent = Math.max(0, 150 - total);
+        }
+
+        function resetData() {
+            if (confirm("FORMAT ALL DATA? (Are you sure?)")) {
+                const currentTheme = state.theme || 'floral';
+                state = { extra: 0, theme: currentTheme };
+                save();
+                renderGrid();
+            }
+        }
+
+        /* Donation Modal Logic */
+        let currentDonationAmount = 5;
+        let currentPaymentMethod = 'mobilepay';
+
+        function openDonationModal() {
+            document.getElementById('modalMainContent').style.display = 'block';
+            document.getElementById('modalSuccessContent').style.display = 'none';
+
+            // Set default preset active
+            const presetButtons = document.querySelectorAll('.preset-btn');
+            presetButtons.forEach(btn => btn.classList.remove('active'));
+            presetButtons[1].classList.add('active');
+
+            currentDonationAmount = 5;
+            document.getElementById('customAmountContainer').style.display = 'none';
+
+            // Reset spinner states
+            const spinners = document.querySelectorAll('.spinner');
+            spinners.forEach(s => s.style.display = 'none');
+
+            // Reset texts visible
+            document.getElementById('text-mobilepay').style.display = 'inline-block';
+            document.getElementById('text-paypal').style.display = 'inline-block';
+            document.getElementById('text-applepay').style.display = 'inline-block';
+
+            // Show phone field
+            document.getElementById('mobileNumber').value = '040 ';
+
+            updatePaymentButtonsText();
+            document.getElementById('donationOverlay').classList.add('open');
+        }
+
+        function closeDonationModal() {
+            document.getElementById('donationOverlay').classList.remove('open');
+        }
+
+        function closeDonationModalOnBg(e) {
+            if (e.target === document.getElementById('donationOverlay')) {
+                closeDonationModal();
+            }
+        }
+
+        function selectAmount(amt, btn) {
+            const presetButtons = document.querySelectorAll('.preset-btn');
+            presetButtons.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            if (amt === 'custom') {
+                document.getElementById('customAmountContainer').style.display = 'block';
+                const customVal = document.getElementById('customAmountInput').value;
+                currentDonationAmount = parseFloat(customVal) || 0;
+            } else {
+                document.getElementById('customAmountContainer').style.display = 'none';
+                currentDonationAmount = amt;
+            }
+            updatePaymentButtonsText();
+        }
+
+        function updateCustomAmount(val) {
+            currentDonationAmount = parseFloat(val) || 0;
+            updatePaymentButtonsText();
+        }
+
+        function switchPayTab(method, btn) {
+            currentPaymentMethod = method;
+
+            const tabs = document.querySelectorAll('.pay-tab');
+            tabs.forEach(t => t.classList.remove('active'));
+            btn.classList.add('active');
+
+            const views = document.querySelectorAll('.pay-view');
+            views.forEach(v => v.classList.remove('active'));
+            document.getElementById(`view-${method}`).classList.add('active');
+        }
+
+        function updatePaymentButtonsText() {
+            const formattedAmt = currentDonationAmount + ' €';
+            document.getElementById('text-mobilepay').textContent = `PAY WITH MOBILEPAY (${formattedAmt})`;
+            document.getElementById('text-paypal').textContent = `PAY WITH PAYPAL (${formattedAmt})`;
+            document.getElementById('text-applepay').textContent = `PAY WITH APPLE PAY (${formattedAmt})`;
+        }
+
+        function simulatePayment(brandName) {
+            const activeSpinner = document.getElementById(`spin-${currentPaymentMethod}`);
+            const activeText = document.getElementById(`text-${currentPaymentMethod}`);
+
+            activeSpinner.style.display = 'inline-block';
+            activeText.style.display = 'none';
+
+            // Disable close triggers while processing
+            const closeBtn = document.querySelector('.modal-close');
+            if (closeBtn) closeBtn.style.display = 'none';
+
+            setTimeout(() => {
+                activeSpinner.style.display = 'none';
+                activeText.style.display = 'inline-block';
+                if (closeBtn) closeBtn.style.display = 'flex';
+
+                // Mark as VIP Patron!
+                state.vip = true;
+                save();
+                renderGrid();
+                playSuccessSound();
+
+                // Swap Modal screens
+                document.getElementById('successAmount').textContent = `${currentDonationAmount} €`;
+                document.getElementById('modalMainContent').style.display = 'none';
+                document.getElementById('modalSuccessContent').style.display = 'block';
+            }, 2000);
+        }
+
+        function playSuccessSound() {
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const playTone = (freq, time, dur) => {
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    osc.frequency.setValueAtTime(freq, time);
+                    gain.gain.setValueAtTime(0.08, time);
+                    gain.gain.exponentialRampToValueAtTime(0.001, time + dur);
+                    osc.start(time);
+                    osc.stop(time + dur);
+                };
+                playTone(261.63, ctx.currentTime, 0.2); // C4
+                playTone(329.63, ctx.currentTime + 0.15, 0.2); // E4
+                playTone(392.00, ctx.currentTime + 0.3, 0.2); // G4
+                playTone(523.25, ctx.currentTime + 0.45, 0.4); // C5
+            } catch (e) { console.log(e); }
+        }
+
+        function toggleTheme() {
+            const nextTheme = state.theme === 'floral' ? 'city' : 'floral';
+            state.theme = nextTheme;
+            save();
+            applyTheme(nextTheme);
+        }
+
+        function applyTheme(theme) {
+            document.body.className = `theme-${theme}`;
+            const btnText = document.getElementById('theme-btn-text');
+            if (btnText) {
+                btnText.textContent = theme === 'floral' ? 'CITY DUSK' : 'GARDEN SUNSET';
+            }
+            const btnIcon = document.getElementById('theme-btn-icon');
+            if (btnIcon) {
+                btnIcon.textContent = theme === 'floral' ? '🌆' : '🌸';
+            }
+        }
+
+        // Initialize
+        window.onload = () => {
+            renderGrid();
+            if (!state.theme) {
+                state.theme = 'floral';
+            }
+            applyTheme(state.theme);
+        };
+    </script>
+</body>
+
+</html>
